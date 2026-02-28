@@ -1,0 +1,33 @@
+import streamlit as st
+import pandas as pd
+
+st.title("ClearGain - MVP")
+st.write("Upload your marketplace sales report (CSV)")
+
+uploaded_file = st.file_uploader("Upload CSV", type=["csv"])
+
+if uploaded_file is not None:
+    df = pd.read_csv(uploaded_file)
+
+    if "revenue" in df.columns and "fees" in df.columns:
+
+        st.subheader("Enter Cost per Unit")
+        cost_per_unit = st.number_input("Cost per product unit", min_value=0.0)
+
+        total_revenue = df["revenue"].sum()
+        total_fees = df["fees"].sum()
+        total_units = len(df)
+
+        total_cost = total_units * cost_per_unit
+        net_profit = total_revenue - total_fees - total_cost
+        margin = (net_profit / total_revenue) * 100 if total_revenue > 0 else 0
+
+        st.subheader("Results")
+        st.write(f"Total Revenue: ${total_revenue:,.2f}")
+        st.write(f"Total Fees: ${total_fees:,.2f}")
+        st.write(f"Total Cost: ${total_cost:,.2f}")
+        st.write(f"Net Profit: ${net_profit:,.2f}")
+        st.write(f"Profit Margin: {margin:.2f}%")
+
+    else:
+        st.error("CSV must contain 'revenue' and 'fees' columns.")
